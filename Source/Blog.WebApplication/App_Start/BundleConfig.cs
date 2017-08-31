@@ -25,6 +25,7 @@
             bundles.Add(new StyleBundle("~/Content/css").Include(
                       "~/Content/bootstrap.css",
                       "~/Content/Site.css"));
+
             bundles.Add(new ScriptBundle("~/bundles/loginForm").Include(
                 "~/Scripts/loginFormHandler.js"));
         }

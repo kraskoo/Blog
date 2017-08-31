@@ -1,6 +1,5 @@
 ﻿namespace Blog.WebApplication.Controllers
 {
-    using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
     using System.Web.Mvc;
@@ -41,8 +40,7 @@
         [Route("{id}/Comments")]
         public ActionResult UserComments(string id)
         {
-            IEnumerable<Reply> replies = AccountDataService.GetUserComments(id);
-            return this.View(replies);
+            return this.View(AccountDataService.GetUserComments(id));
         }
 
         // GET: /Account/Login
@@ -103,21 +101,11 @@
         [HttpGet]
         public ActionResult EditProfile()
         {
-            var currentUser = AccountDataService
-                .FindUserById(
-                    this.User.Identity.GetUserId());
-            var epbm = new EditProfileBindingModel
-            {
-                Email = currentUser.Email,
-                FirstName = currentUser.FirstName,
-                LastName = currentUser.LastName,
-                ProfilePictureUrl = AccountProfileService
-                    .GetUserProfileImage(
-                        currentUser.HasOwnProfilePicture,
-                        currentUser.UserName)
-            };
-
-            return this.View(epbm);
+            return this.View(
+                AccountDataService
+                    .GetEditProfile(
+                        this.User.Identity.GetUserId(),
+                        AccountProfileService.GetUserProfileImage));
         }
 
         [HttpPost]

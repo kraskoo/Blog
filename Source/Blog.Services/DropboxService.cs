@@ -98,8 +98,6 @@
             return this.urlsByPathMedia[path].Key;
         }
 
-
-
         public bool CreateDirectory(string path)
         {
             path = this.TrimLastSlashIfExists(path);

@@ -128,5 +128,21 @@
             roleId = this.GetResolvedUserRole(roleManager);
             return userManager.CreateAsync(user, model.Password);
         }
+
+        public EditProfileBindingModel GetEditProfile(
+            string userId,
+            Func<bool, string, string> profileImageFunc)
+        {
+            var currentUser = this.FindUserById(userId);
+            return new EditProfileBindingModel
+            {
+                Email = currentUser.Email,
+                FirstName = currentUser.FirstName,
+                LastName = currentUser.LastName,
+                ProfilePictureUrl = profileImageFunc(
+                    currentUser.HasOwnProfilePicture,
+                    currentUser.UserName)
+            };
+        }
     }
 }

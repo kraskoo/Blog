@@ -1,9 +1,8 @@
-﻿using System.Globalization;
-using System.Linq;
-
-namespace Blog.Common.Extensions
+﻿namespace Blog.Common.Extensions
 {
     using System;
+    using System.Globalization;
+    using System.Linq;
     using System.Reflection;
 
     public static class TypeAndGenericExtensions
