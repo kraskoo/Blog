@@ -1,0 +1,19 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    @Html.Partial("_Metatags")
+    <title>@ViewBag.Title - My Blog</title>
+    @Html.Partial("_Bundles")
+</head>
+<body>
+    @Html.Partial("_Navbar")
+    <div class="container body-content">
+        @RenderBody()
+        <hr />
+        <footer>
+            <p>&copy; @DateTime.Now.Year - My Blog</p>
+        </footer>
+    </div>
+    @RenderSection("scripts", false)
+</body>
+</html>

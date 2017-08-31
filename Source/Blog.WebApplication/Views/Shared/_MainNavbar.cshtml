@@ -1,0 +1,19 @@
+﻿<ul class="nav navbar-nav">
+    <li><a href="@Url.Action("Index", "Home")" title="Home">Home</a></li>
+    <li class="dropdown">
+        <a href="@Url.Action("Index", "Topic", new { category = "" })" title="Topics" class="dropdown-toggle" data-toggle="dropdown">Topics</a>
+        <ul class="dropdown-menu">
+            <li><a href="@Url.Action("Index", "Topic", new { category = "AspNet" })">Asp Net</a></li>
+            <li><a href="@Url.Action("Index", "Topic", new { category = "EntityFramework" })">Entity Framework</a></li>
+            <li><a href="@Url.Action("Index", "Topic", new { category = "Html" })">Html</a></li>
+            <li><a href="@Url.Action("Index", "Topic", new { category = "Css" })">Css</a></li>
+            <li><a href="@Url.Action("Index", "Topic", new { category = "JavaScript" })">JavaScript</a></li>
+            <li><a href="@Url.Action("Index", "Topic", new { category = "DesignPatterns" })">Design Patterns</a></li>
+        </ul>
+    </li>
+    <li><a href="#" title="Portfolio">Portfolio</a></li>
+    <li><a href="#" title="Links">Links</a></li>
+    <li><a href="#" title="Archives">Archives</a></li>
+    <li><a href="@Url.Action("About", "Home")" title="About Me">About Me</a></li>
+    <li><a href="@Url.Action("Contact", "Home")" title="Contact Me">Contact Me</a></li>
+</ul>

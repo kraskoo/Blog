@@ -1,0 +1,31 @@
+﻿@model IEnumerable<Topic>
+@{
+    this.ViewBag.Title = $"{this.Context.GetTopicCategories(Model)} Topics";
+    var counter = 0;
+}
+
+<h2>@this.ViewBag.Title</h2>
+
+<div class="row">
+@foreach (var topic in this.Model)
+{
+    <div class="col-md-4">
+        <h5 class="text-primary text-center text-uppercase"><strong>@topic.Title</strong></h5>
+        <div class="text-muted"><i>Posted on: @topic.TopicDate.ToShortDateString()</i></div>
+        <div class="text-justify">@string.Join(string.Empty, topic.Text.Take(200)) ...</div>
+        <br />
+        <a href="@Url.Action("GetById", "Topic", new { id = topic.Id })" class="btn btn-default">Read more</a>
+    </div>
+    counter++;
+    if (counter % 3 == 0)
+    {
+        @:</div>
+        @:<br />
+        @:<div class="row">
+    }
+}
+
+@if (counter % 3 != 0)
+{
+    @:</div>
+}

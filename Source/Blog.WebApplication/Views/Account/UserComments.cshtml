@@ -1,0 +1,27 @@
+﻿@model IEnumerable<Reply>
+@{
+    ViewBag.Title = "Comments";
+}
+
+<h2>Comments</h2>
+<div class="container">
+    <div class="row">
+        <div class="col-md-8 col-md-push-2">
+            @foreach (var reply in Model)
+            {
+                <div class="media">
+                    <div class="media-left">
+                        <img src="@this.Context.GetProfilePictureUrl(reply.UserId)" class="media-object media-profile" />
+                    </div>
+                    <div class="media-body">
+                        <h4 class="media-heading text-danger">@reply.User.UserName <small class="text-muted">Posted on: @reply.ReplayDate.ToShortDateString()</small></h4>
+                        <p>@reply.ReplayText</p>
+                    </div>
+                    <div class="media-bottom">
+                        <small class="text-muted"><a href="@Url.Action("GetById", "Topic", new { id = reply.Topic.Id })">@reply.Topic.Title</a></small>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
