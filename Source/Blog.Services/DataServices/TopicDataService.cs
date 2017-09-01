@@ -24,23 +24,6 @@
             }
         }
 
-        public void CreateReply(ReplyBindingModel reply)
-        {
-            var newReply = new Reply
-            {
-                ReplayDate = DateTime.Now,
-                ReplayText = reply.Text,
-                UserId = reply.ReplierId,
-                TopicId = reply.TopicId
-            };
-
-            using (var context = this.GetDbContext)
-            {
-                context.Replies.Add(newReply);
-                context.SaveChanges();
-            }
-        }
-
         public void CreateNewTopic(TopicBindingModel topic, IPrincipal user)
         {
             using (var context = this.GetDbContext)

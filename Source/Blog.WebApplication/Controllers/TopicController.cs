@@ -13,13 +13,6 @@
             this.dataService = new TopicDataService();
         }
 
-        [HttpPost]
-        public ActionResult SendComment(ReplyBindingModel reply)
-        {
-            this.dataService.CreateReply(reply);
-            return this.RedirectToAction("GetById", "Topic", new { id = reply.TopicId });
-        }
-
         [Route("Topic/{id:int}")]
         public ActionResult GetById(int id)
         {

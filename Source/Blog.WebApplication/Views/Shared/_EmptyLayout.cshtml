@@ -1,0 +1,12 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    @Html.Partial("_Metatags")
+    <title>@ViewBag.Title - My Blog</title>
+    @Html.Partial("_Bundles")
+</head>
+<body id="no-padding-body">
+    @RenderBody()
+    @RenderSection("scripts", false)
+</body>
+</html>

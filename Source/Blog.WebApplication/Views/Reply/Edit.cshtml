@@ -1,0 +1,30 @@
+﻿@model ReplyBindingModel
+@{
+    ViewBag.Title = "Edit";
+    Layout = "~/Views/Shared/_EmptyLayout.cshtml";
+}
+<div class="container">
+    <div class="col-md-5 col-md-offset-3">
+        <div class="row well">
+            @using (Html.BeginForm("Edit", "Reply", FormMethod.Post))
+            {
+                @Html.ValidationSummary()
+                <div class="form-group">
+                    <textarea name="Text" class="form-control" id="text-area-comment" rows="5">@Model.Text</textarea>
+                </div>
+                <div class="form-group">
+                    <input type="text" name="ReplierId" value="@Model.ReplierId" class="form-control hidden" />
+                </div>
+                <div class="form-group">
+                    <input type="text" name="ReplyId" value="@Model.ReplyId" class="form-control hidden" />
+                </div>
+                <div class="form-group">
+                    <input type="text" name="TopicId" value="@Model.TopicId" class="form-control hidden" />
+                </div>
+                <div class="form-group">
+                    <input type="submit" value="Done" class="btn btn-default" />
+                </div>
+            }
+        </div>
+    </div>    
+</div>

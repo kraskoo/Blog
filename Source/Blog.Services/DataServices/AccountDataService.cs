@@ -50,10 +50,14 @@
                     currentUser.LastName = epbm.LastName;
                     currentUser.Email = epbm.Email;
                     var newUsername = $"{epbm.FirstName} {epbm.LastName}";
-                    InternalService.DropboxService
-                        .RenameFolder("/Users/",
-                            currentUser.UserName.Replace(" ", "-").ToLower(),
-                            newUsername.Replace(" ", "-").ToLower());
+                    if (currentUser.HasOwnProfilePicture)
+                    {
+                        InternalService.DropboxService
+                            .RenameFolder("/Users/",
+                                currentUser.UserName.Replace(" ", "-").ToLower(),
+                                newUsername.Replace(" ", "-").ToLower());
+                    }
+
                     currentUser.UserName = newUsername;
                     context.Users.AddOrUpdate(currentUser);
                     context.SaveChanges();

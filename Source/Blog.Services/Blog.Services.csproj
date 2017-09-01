@@ -89,6 +89,7 @@
     <Compile Include="DataServices\AccountDataService.cs" />
     <Compile Include="AccountServices\AccountProfileService.cs" />
     <Compile Include="DataServices\BaseDataService.cs" />
+    <Compile Include="DataServices\ReplyDataService.cs" />
     <Compile Include="DataServices\TopicDataService.cs" />
     <Compile Include="DropboxService.cs" />
     <Compile Include="EmailService.cs" />

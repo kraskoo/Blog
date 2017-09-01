@@ -1,9 +1,9 @@
 ﻿@model IEnumerable<Reply>
 @{
-    ViewBag.Title = "Comments";
+    ViewBag.Title = $"{Model.FirstOrDefault()?.User.UserName} Comments";
 }
-
-<h2>Comments</h2>
+<h2>@ViewBag.Title</h2>
+<hr />
 <div class="container">
     <div class="row">
         <div class="col-md-8 col-md-push-2">
@@ -11,17 +11,66 @@
             {
                 <div class="media">
                     <div class="media-left">
-                        <img src="@this.Context.GetProfilePictureUrl(reply.UserId)" class="media-object media-profile" />
+                        <img src="@Context.GetProfilePictureUrl(reply.UserId)" class="media-object media-profile" alt="No profile picture" />
                     </div>
                     <div class="media-body">
                         <h4 class="media-heading text-danger">@reply.User.UserName <small class="text-muted">Posted on: @reply.ReplayDate.ToShortDateString()</small></h4>
                         <p>@reply.ReplayText</p>
                     </div>
+                    @if (this.User.Identity.GetUserId() == reply.UserId)
+                    {
+                        <div class="media-right">
+                            <div class="btn-group btn-group-justified">
+                                <a href="#" class="btn btn-default btn-sm" reply-id="@reply.Id" data-toggle="modal" data-target="#edit" style="width: 43px">Edit</a>
+                                <a href="@Url.Action("DeleteReply", "Reply", new { replyId = reply.Id })" class="btn btn-default btn-sm" style="width: 57px">Delete</a>
+                            </div>
+                        </div>
+                        <div class="modal fade" id="edit" role="dialog">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                        <h4 class="modal-title"></h4>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="row well">
+                                            @using (Html.BeginForm("EditInModal", "Reply", FormMethod.Post))
+                                            {
+                                                @Html.ValidationSummary()
+                                                <div class="form-group">
+                                                    <textarea id="reply-text" name="ReplayText" class="form-control" rows="5">@reply.ReplayText</textarea>
+                                                </div>
+                                                <div class="form-group">
+                                                    <input type="text" id="user-id" name="UserId" class="form-control hidden" />
+                                                </div>
+                                                <div class="form-group">
+                                                    <input type="text" id="reply-id" name="Id" class="form-control hidden" />
+                                                </div>
+                                                <div class="form-group">
+                                                    <input type="text" id="topic-id" name="TopicId" class="form-control hidden" />
+                                                </div>
+                                                <div class="form-group">
+                                                    <input type="text" id="reply-date" name="ReplayDate" class="form-control hidden" />
+                                                </div>
+                                                <div class="form-group">
+                                                    <input type="submit" value="Done" class="btn btn-default" />
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
                     <div class="media-bottom">
-                        <small class="text-muted"><a href="@Url.Action("GetById", "Topic", new { id = reply.Topic.Id })">@reply.Topic.Title</a></small>
+                        <small class="text-muted">Topic: <a href="@Url.Action("GetById", "Topic", new { id = reply.Topic.Id })" id="topic-name">@reply.Topic.Title</a></small>
                     </div>
                 </div>
             }
         </div>
     </div>
 </div>
+@section Scripts
+{
+    @Scripts.Render("~/bundles/userCommentHandler")
+}
