@@ -20,6 +20,18 @@
         public async Task<ActionResult> SendReply(ReplyBindingModel reply)
         {
             var returnUrl = this.Request.UrlReferrer?.AbsolutePath;
+            if (!this.User.Identity.IsAuthenticated)
+            {
+                return await Task.FromResult(
+                    this.RedirectToAction(
+                        "Login",
+                        "Account",
+                        new
+                        {
+                            returnUrl
+                        }));
+            }
+
             if (!this.ModelState.IsValid)
             {
                 return await Task.FromResult(this.Redirect(returnUrl));
