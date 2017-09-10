@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading.Tasks;
     using DropNet;
     using DropNet.Models;
     using Models;
@@ -41,7 +42,7 @@
             this.urlsByPathMedia = new Dictionary<string, KeyValuePair<string, DateTime>>();
         }
 
-        public void UploadFile(string pathToFile, byte[] byteRepresentation, bool isOverride = false)
+        public Task UploadFile(string pathToFile, byte[] byteRepresentation, bool isOverride = false)
         {
             pathToFile = this.TrimLastSlashIfExists(pathToFile);
             if (!isOverride && this.IsFileExists(pathToFile))
@@ -55,7 +56,7 @@
                 throw new ArgumentException("Path doesn't exist.");
             }
 
-            this.client.UploadFile(subDirectory, pathToFile, byteRepresentation, isOverride);
+            return this.client.UploadFileTask(subDirectory, pathToFile, byteRepresentation, isOverride);
         }
 
         public void RenameFolder(string pathToFolder, string oldName, string newNameFolder)
@@ -72,6 +73,17 @@
             }
 
             this.client.Delete(oldDirectory);
+        }
+
+        public byte[] GetRetBytesFromApiUrl(string path)
+        {
+            path = this.TrimLastSlashIfExists(path);
+            if (!this.IsFileExists(path))
+            {
+                throw new ArgumentException("Path doesn't exist.");
+            }
+
+            return this.client.GetFile(path);
         }
 
         public string GetUrlToApiFile(string path)
@@ -91,6 +103,7 @@
 
             if (containsKey && DateTime.UtcNow.AddSeconds(3) >= this.urlsByPathMedia[path].Value)
             {
+                var bytes = this.client.GetFile(path);
                 var media = this.client.GetMedia(path);
                 this.urlsByPathMedia[path] = new KeyValuePair<string, DateTime>(media.Url, media.ExpiresDate);
             }

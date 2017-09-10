@@ -1,40 +1,40 @@
-﻿@model Topic
+﻿@model TopicViewModel2
 @{
-    this.ViewBag.Title = $"{this.Context.GetEnumToString(Model.Category)} Topic";
+    this.ViewBag.Title = $"{this.Context.GetEnumToString(this.Model.TopicCategory)} Topic";
 }
 <h2>@this.ViewBag.Title</h2>
 <hr />
 <div class="container">
     <div class="row">
-        <h3 class="text-primary text-center text-uppercase">@Model.Title</h3>
+        <h3 class="text-primary text-center text-uppercase">@this.Model.TopicTitle</h3>
     </div>
     <div class="col-md-10 col-md-push-1">
         <div class="pull-left" id="author-post">
-            <img src="@this.Context.GetProfilePictureUrl(this.Model.UserId)" class="img-responsive profile-user-image author-profile" alt="Cannot load image" />
+            <img src="@this.Model.AuthorProfilePicture" class="img-responsive profile-user-image author-profile" alt="Cannot load image" />
             <br />
             <small class="text-muted">
-                <i>Author: @Model.User.UserName</i>
+                <i>Author: @this.Model.AuthorUserName</i>
             </small>
             <br />
             <small class="text-muted">
-                <i>Posted on: @Model.TopicDate.ToShortDateString()</i>
+                <i>Posted on: @this.Model.TopicDate.ToShortDateString()</i>
             </small>
         </div>
-        <div class="text-justify">@string.Join(string.Empty, Model.Text)</div>
+        <div class="text-justify">@string.Join(string.Empty, this.Model.TopicText)</div>
         <br />
         <hr />
         <div class="row">
-            @foreach (var reply in this.Model.Replies)
+            @foreach (var reply in this.Model.ReplyViewModels)
             {
                 <div class="media">
                     <div class="media-left">
-                        <img src="@this.Context.GetProfilePictureUrl(reply.User.Id)" class="media-object media-profile" alt="Cannot load image" />
+                        <img src="@reply.ReplierProfilePicture" class="media-object media-profile" alt="Cannot load image" />
                     </div>
                     <div class="media-body">
-                        <h4 class="media-heading"><a href="@Url.Action("UserComments", "Account", new { id = reply.UserId })" class="text-danger">@reply.User.UserName</a> <small class="text-muted">Posted on: @reply.ReplayDate.ToShortDateString()</small></h4>
-                        <p>@reply.ReplayText</p>
+                        <h4 class="media-heading"><a href="@Url.Action("UserComments", "Account", new { id = reply.ReplierId})" class="text-danger">@reply.ReplierUserName</a> <small class="text-muted">Posted on: @reply.ReplyDate.ToShortDateString()</small></h4>
+                        <p>@reply.ReplyText</p>
                     </div>
-                    @if (this.User.Identity.GetUserId() == reply.UserId)
+                    @if (this.User.Identity.GetUserId() == reply.ReplierId)
                     {
                         <div class="media-right">
                             <div class="btn-group btn-group-justified">
@@ -55,7 +55,7 @@
                                             {
                                                 @Html.ValidationSummary()
                                                 <div class="form-group">
-                                                    <textarea id="reply-text" name="ReplayText" class="form-control" rows="5">@reply.ReplayText</textarea>
+                                                    <textarea id="reply-text" name="ReplayText" class="form-control" rows="5">@reply.ReplyText</textarea>
                                                 </div>
                                                 <div class="form-group">
                                                     <input type="text" id="user-id" name="UserId" class="form-control hidden" />
@@ -91,7 +91,7 @@
                     <input type="text" name="ReplierId" value="@this.Context.User.Identity.GetUserId()" class="hidden" />
                 </div>
                 <div class="form-group">
-                    <input type="text" name="TopicId" value="@this.Model.Id" class="hidden" />
+                    <input type="text" name="TopicId" value="@this.Model.TopicId" class="hidden" />
                 </div>
                 <div class="form-group">
                     <textarea name="Text" class="form-control" id="text-area-comment" rows="5"></textarea>

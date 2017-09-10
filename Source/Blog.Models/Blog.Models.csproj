@@ -82,10 +82,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ApiConnection.cs" />
+    <Compile Include="Attributes\MaxFileSizeAttribute.cs" />
     <Compile Include="BindingModels\EditProfileBindingModel.cs" />
     <Compile Include="BindingModels\ReplyBindingModel.cs" />
     <Compile Include="BindingModels\TopicBindingModel.cs" />
     <Compile Include="Enums\TopicCategory.cs" />
+    <Compile Include="ViewModels\ReplyViewModel.cs" />
+    <Compile Include="ViewModels\AccountViewModels\UserReplyViewModel.cs" />
     <Compile Include="ViewModels\ManageAccountViewModels\AddPhoneNumberViewModel.cs" />
     <Compile Include="ViewModels\ManageAccountViewModels\ChangePasswordViewModel.cs" />
     <Compile Include="ViewModels\ManageAccountViewModels\ConfigureTwoFactorViewModel.cs" />
@@ -107,6 +110,9 @@
     <Compile Include="Reply.cs" />
     <Compile Include="Topic.cs" />
     <Compile Include="User.cs" />
+    <Compile Include="ViewModels\TopicViewModel.cs" />
+    <Compile Include="ViewModels\TopicViewModel2.cs" />
+    <Compile Include="Vote.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

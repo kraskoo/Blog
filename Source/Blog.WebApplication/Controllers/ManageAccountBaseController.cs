@@ -28,8 +28,7 @@
         }
 
         protected IAuthenticationManager AuthenticationManager =>
-            this.HttpContext
-                .GetOwinContext()
+            this.OwinContext
                 .Authentication;
 
         protected void AddErrors(IdentityResult result)

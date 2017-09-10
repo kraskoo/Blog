@@ -1,6 +1,8 @@
 ﻿namespace Blog.Models.ViewModels.AccountViewModels
 {
+    using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations;
+    using Microsoft.Owin.Security;
 
     public class LoginViewModel
     {
@@ -16,5 +18,7 @@
 
         [Display(Name = "Remember me?")]
         public bool RememberMe { get; set; }
+
+        public IEnumerable<AuthenticationDescription> AuthenticationDescriptions { get; set; }
     }
 }

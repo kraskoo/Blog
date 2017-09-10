@@ -27,6 +27,8 @@
 
         public virtual ICollection<Topic> Topics { get; set; }
 
+        public virtual ICollection<Vote> Votes { get; set; }
+
         public bool HasOwnProfilePicture { get; set; }
     }
 }

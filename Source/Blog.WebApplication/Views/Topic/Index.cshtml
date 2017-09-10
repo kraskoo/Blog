@@ -1,4 +1,4 @@
-﻿@model IEnumerable<Topic>
+﻿@model IEnumerable<TopicViewModel>
 @{
     this.ViewBag.Title = $"{this.Context.GetTopicCategories(Model)} Topics";
     var counter = 0;
@@ -13,7 +13,26 @@
         <h5 class="text-primary text-center text-uppercase"><strong>@topic.Title</strong></h5>
         <div class="text-muted"><i>Posted on: @topic.TopicDate.ToShortDateString()</i></div>
         <div class="text-justify">@string.Join(string.Empty, topic.Text.Take(200)) ...</div>
-        <br />
+        <div class="panel panel-collapse">
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-md-6 col-sm-6 col-xs-6">
+                        <p class="small">@this.Context.GetLastActivityAsString(topic.LastActivity)</p>
+                    </div>
+                    <div class="col-md-6 col-sm-6 col-xs-6">
+                        <p class="text-info small text-muted">Comments <span class="badge">@topic.CommentCount</span></p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 col-sm-6 col-xs-6">
+                        <p class="small">Users in discussion <span class="badge">@topic.UsersActivityCount</span></p>
+                    </div>
+                    <div class="col-md-6 col-sm-6 col-xs-6">
+                        <p class="text-info small">Votes rate: @($"{topic.VotesRate:F2}")</p>
+                    </div>
+                </div>
+            </div>
+        </div>
         <a href="@Url.Action("GetById", "Topic", new { id = topic.Id })" class="btn btn-default">Read more</a>
     </div>
     counter++;

@@ -1,4 +1,7 @@
-﻿namespace Blog.WebApplication
+﻿using Blog.Services.DataServices;
+using Microsoft.Ajax.Utilities;
+
+namespace Blog.WebApplication
 {
     using System;
     using System.Linq;
@@ -73,11 +76,9 @@
         {
             if (string.IsNullOrEmpty(GoogleKey))
             {
-                var googleApi = BlogDbContext.Create()
-                    .ApiConnections
-                    .FirstOrDefault(api => api.ApiName == GoogleName);
-                GoogleKey = googleApi.Key;
-                GoogleSecrete = googleApi.Secrete;
+                var googleApi = new ApiDataService().GetApiParametersByName(GoogleName);
+                GoogleKey = googleApi.Item1;
+                GoogleSecrete = googleApi.Item2;
             }
 
             return new GoogleOAuth2AuthenticationOptions
@@ -91,11 +92,9 @@
         {
             if (string.IsNullOrEmpty(FacebookId))
             {
-                var facebookApi = BlogDbContext.Create()
-                    .ApiConnections
-                    .FirstOrDefault(api => api.ApiName == FacebookName);
-                FacebookId = facebookApi.Key;
-                FacebookSecret = facebookApi.Secrete;
+                var facebookApi = new ApiDataService().GetApiParametersByName(FacebookName);
+                FacebookId = facebookApi.Item1;
+                FacebookSecret = facebookApi.Item2;
             }
         }
     }

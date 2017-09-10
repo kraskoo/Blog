@@ -67,6 +67,10 @@
     <Compile Include="Migrations\201708271803128_AddUserValidationProfilePictureProperty.Designer.cs">
       <DependentUpon>201708271803128_AddUserValidationProfilePictureProperty.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201709051637421_AddingVoteRepliesTable.cs" />
+    <Compile Include="Migrations\201709051637421_AddingVoteRepliesTable.Designer.cs">
+      <DependentUpon>201709051637421_AddingVoteRepliesTable.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -92,6 +96,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201708271803128_AddUserValidationProfilePictureProperty.resx">
       <DependentUpon>201708271803128_AddUserValidationProfilePictureProperty.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201709051637421_AddingVoteRepliesTable.resx">
+      <DependentUpon>201709051637421_AddingVoteRepliesTable.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

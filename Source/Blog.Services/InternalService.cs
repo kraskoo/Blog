@@ -1,7 +1,6 @@
 ﻿namespace Blog.Services
 {
-    using System.Linq;
-    using Data;
+    using DataServices;
 
     internal class InternalService
     {
@@ -10,13 +9,11 @@
 
         static InternalService()
         {
-            var dropbox = BlogDbContext.Create()
-                .ApiConnections
-                .FirstOrDefault(api => api.ApiName == DropboxService.ApiName);
+            var dropbox = new ApiDataService().GetApiParametersByName(DropboxService.ApiName);
             DropboxService = new DropboxService(
-                dropbox.Key,
-                dropbox.Secrete,
-                dropbox.Token);
+                dropbox.Item1,
+                dropbox.Item2,
+                dropbox.Item3);
             ImageService = new ImageService();
         }
     }

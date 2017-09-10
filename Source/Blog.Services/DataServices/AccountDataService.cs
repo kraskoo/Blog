@@ -1,6 +1,7 @@
 ﻿namespace Blog.Services.DataServices
 {
     using System;
+    using System.Data.Entity;
     using System.Data.Entity.Migrations;
     using System.Linq;
     using System.Threading.Tasks;
@@ -16,69 +17,97 @@
 
     public class AccountDataService : BaseDataService
     {
-        public void EditProfile(
+        public Task EditProfile(
             EditProfileBindingModel epbm,
             IPrincipal user,
             IAuthenticationManager authenticationManager,
             UserManager userManager)
         {
             var isImageUpdate = epbm.PostedFileBase != null;
-            using (var context = this.GetDbContext)
+            return Task.Run(() =>
             {
-                var currentUser = context.Users.Find(user.Identity.GetUserId());
-                var isUserInfoIsUpdated = epbm.Email != currentUser.Email ||
-                                          epbm.FirstName != currentUser.FirstName ||
-                                          epbm.LastName != currentUser.LastName;
-                if (isImageUpdate)
+                using (var context = this.GetDbContext)
                 {
-                    new AccountProfileService()
-                        .UploadUserProfilePicture(
-                            currentUser.UserName,
-                            currentUser.HasOwnProfilePicture,
-                            epbm);
-                    if (!currentUser.HasOwnProfilePicture)
+                    var currentUser = context.Users.Find(user.Identity.GetUserId());
+                    var isUserInfoIsUpdated = epbm.Email != currentUser.Email ||
+                                              epbm.FirstName != currentUser.FirstName ||
+                                              epbm.LastName != currentUser.LastName;
+                    if (isImageUpdate)
                     {
-                        currentUser.HasOwnProfilePicture = true;
-                        context.Users.AddOrUpdate(currentUser);
-                        context.SaveChanges();
-                    }
-                }
-
-                if (isUserInfoIsUpdated)
-                {
-                    currentUser.FirstName = epbm.FirstName;
-                    currentUser.LastName = epbm.LastName;
-                    currentUser.Email = epbm.Email;
-                    var newUsername = $"{epbm.FirstName} {epbm.LastName}";
-                    if (currentUser.HasOwnProfilePicture)
-                    {
-                        InternalService.DropboxService
-                            .RenameFolder("/Users/",
-                                currentUser.UserName.Replace(" ", "-").ToLower(),
-                                newUsername.Replace(" ", "-").ToLower());
-                    }
-
-                    currentUser.UserName = newUsername;
-                    context.Users.AddOrUpdate(currentUser);
-                    context.SaveChanges();
-                    authenticationManager.SignOut(
-                        DefaultAuthenticationTypes.ExternalCookie);
-                    var identity = userManager.CreateIdentity(
-                        currentUser,
-                        DefaultAuthenticationTypes.ApplicationCookie);
-                    authenticationManager.SignIn(
-                        new AuthenticationProperties
+                        new AccountProfileService()
+                            .UploadUserProfilePicture(
+                                currentUser.UserName,
+                                currentUser.HasOwnProfilePicture,
+                                epbm);
+                        if (!currentUser.HasOwnProfilePicture)
                         {
-                            IsPersistent = true
-                        },
-                        identity);
+                            currentUser.HasOwnProfilePicture = true;
+                            context.Users.AddOrUpdate(currentUser);
+                            context.SaveChangesAsync();
+                        }
+                    }
+
+                    if (isUserInfoIsUpdated)
+                    {
+                        currentUser.FirstName = epbm.FirstName;
+                        currentUser.LastName = epbm.LastName;
+                        currentUser.Email = epbm.Email;
+                        var newUsername = $"{epbm.FirstName} {epbm.LastName}";
+                        if (currentUser.HasOwnProfilePicture)
+                        {
+                            InternalService.DropboxService
+                                .RenameFolder("/Users/",
+                                    currentUser.UserName.Replace(" ", "-").ToLower(),
+                                    newUsername.Replace(" ", "-").ToLower());
+                        }
+
+                        currentUser.UserName = newUsername;
+                        context.Users.AddOrUpdate(currentUser);
+                        context.SaveChangesAsync();
+                        authenticationManager.SignOut(
+                            DefaultAuthenticationTypes.ExternalCookie);
+                        var identity = userManager.CreateIdentity(
+                            currentUser,
+                            DefaultAuthenticationTypes.ApplicationCookie);
+                        authenticationManager.SignIn(
+                            new AuthenticationProperties
+                            {
+                                IsPersistent = true
+                            },
+                            identity);
+                    }
                 }
-            }
+            });
         }
 
-        public IEnumerable<Reply> GetUserComments(string id)
+        public IEnumerable<UserReplyViewModel> GetUserReplies(string id)
         {
-            return this.GetDbContext.Replies.Where(r => r.UserId == id).ToList();
+            User currentUser;
+            string imageUrl;
+            Reply[] replies;
+            using (var context = this.GetDbContext)
+            {
+                currentUser = context.Users.Find(id);
+                imageUrl = new AccountProfileService().GetUserProfileImage(currentUser);
+                replies = context
+                    .Replies
+                    .Include(r => r.Topic)
+                    .Where(r => r.UserId == id)
+                    .ToArray();
+            }
+            
+            return replies.Select(
+                r => new UserReplyViewModel
+                {
+                    ReplyId = r.Id,
+                    ReplyText = r.ReplayText,
+                    ReplayDate = r.ReplayDate,
+                    TopicId = r.TopicId,
+                    TopicTitle = r.Topic.Title,
+                    UserId = currentUser.Id,
+                    Username = currentUser.UserName,
+                    UserProfileImage = imageUrl
+                });
         }
 
         public void SetUserRole(string userId, string roleId)

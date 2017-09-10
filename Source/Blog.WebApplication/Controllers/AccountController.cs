@@ -1,4 +1,8 @@
-﻿namespace Blog.WebApplication.Controllers
+﻿using System;
+using System.Net;
+using System.Web;
+
+namespace Blog.WebApplication.Controllers
 {
     using System.Linq;
     using System.Threading.Tasks;
@@ -40,7 +44,7 @@
         [Route("{id}/Comments")]
         public ActionResult UserComments(string id)
         {
-            return this.View(AccountDataService.GetUserComments(id));
+            return this.View(AccountDataService.GetUserReplies(id));
         }
 
         // GET: /Account/Login
@@ -48,7 +52,11 @@
         public ActionResult Login(string returnUrl)
         {
             this.ViewBag.ReturnUrl = returnUrl;
-            return this.View();
+            return this.View(
+                new LoginViewModel
+                {
+                    AuthenticationDescriptions = this.OwinContext.Authentication.GetExternalAuthenticationTypes()
+                });
         }
 
         //
@@ -58,17 +66,8 @@
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Login(LoginViewModel model, string returnUrl)
         {
-            if (!this.ModelState.IsValid)
-            {
-                return this.View(model);
-            }
-
+            model.AuthenticationDescriptions = this.OwinContext.Authentication.GetExternalAuthenticationTypes();
             var userByEmail = this.UserManager.FindByEmail(model.Email);
-            if (userByEmail == null)
-            {
-                this.AddErrors(new IdentityResult("Invalid email or password"));
-                return this.View(model);
-            }
 
             // This doesn't count login failures towards account lockout
             // To enable password failures to trigger account lockout, change to shouldLockout: true
@@ -101,6 +100,7 @@
         [HttpGet]
         public ActionResult EditProfile()
         {
+            var env = this.OwinContext.Environment["host.AppMode"];
             return this.View(
                 AccountDataService
                     .GetEditProfile(
@@ -110,19 +110,19 @@
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult EditProfile(EditProfileBindingModel epbm)
+        public async Task<ActionResult> EditProfile(EditProfileBindingModel epbm)
         {
-            if (!this.ModelState.IsValid)
+            if (epbm.PostedFileBase != null && !this.ModelState.IsValid)
             {
                 return this.View(epbm);
             }
 
-            AccountDataService.EditProfile(
+            await AccountDataService.EditProfile(
                 epbm,
                 this.User,
                 this.AuthenticationManager,
                 this.UserManager);
-            return this.RedirectToAction("Index", "Home");
+            return await Task.FromResult(this.RedirectToAction("Index", "Home"));
         }
 
         //

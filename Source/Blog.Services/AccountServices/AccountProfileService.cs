@@ -1,14 +1,25 @@
-﻿namespace Blog.Services.AccountServices
+﻿using System;
+using System.Text;
+
+namespace Blog.Services.AccountServices
 {
     using System.IO;
+    using System.Threading.Tasks;
+    using System.Collections.Generic;
     using Models;
     using Models.BindingModels;
 
     public class AccountProfileService
     {
         private const string NoProfileImagePath = "/Users/no-profile-image.png";
+        private readonly Dictionary<string, string> base64StringsByUserProfileImage;
 
-        public void UploadUserProfilePicture(
+        public AccountProfileService()
+        {
+            this.base64StringsByUserProfileImage = new Dictionary<string, string>();
+        }
+
+        public Task UploadUserProfilePicture(
             string username,
             bool hasOwnProfilePicture,
             EditProfileBindingModel epbm)
@@ -29,27 +40,43 @@
             }
 
             var filePath = $"{userPath}/profile.jpg";
-            InternalService.DropboxService.UploadFile(filePath, imageBytes, hasOwnProfilePicture);
+            return InternalService.DropboxService.UploadFile(filePath, imageBytes, hasOwnProfilePicture);
         }
 
         public string GetUserProfileImage(bool hasOwnProfileImage, string username)
         {
-            return !hasOwnProfileImage ?
-                InternalService.DropboxService.GetUrlToApiFile(NoProfileImagePath) :
-                InternalService
-                    .DropboxService
-                    .GetUrlToApiFile(
-                        $"{this.ConvertUsernameToApiDirectory(username)}/profile.jpg");
+            var userProfileImage = $"{this.ConvertUsernameToApiDirectory(username)}/profile.jpg";
+            if (!base64StringsByUserProfileImage.ContainsKey(hasOwnProfileImage ? userProfileImage : NoProfileImagePath))
+            {
+                base64StringsByUserProfileImage.Add(
+                    userProfileImage,
+                    this.ConvertToBase64String(
+                        InternalService.DropboxService
+                            .GetRetBytesFromApiUrl(
+                                !hasOwnProfileImage ?
+                                NoProfileImagePath :
+                                userProfileImage)));
+            }
+
+            return base64StringsByUserProfileImage[userProfileImage];
         }
 
         public string GetUserProfileImage(User user)
         {
-            return !user.HasOwnProfilePicture ?
-                InternalService.DropboxService.GetUrlToApiFile(NoProfileImagePath) :
-                InternalService
-                    .DropboxService
-                    .GetUrlToApiFile(
-                        $"{this.ConvertUsernameToApiDirectoryByUser(user)}/profile.jpg");
+            var userProfileImage = $"{this.ConvertUsernameToApiDirectoryByUser(user)}/profile.jpg";
+            if (!base64StringsByUserProfileImage.ContainsKey(user.HasOwnProfilePicture ? userProfileImage : NoProfileImagePath))
+            {
+                base64StringsByUserProfileImage.Add(
+                    userProfileImage,
+                    this.ConvertToBase64String(
+                        InternalService.DropboxService
+                            .GetRetBytesFromApiUrl(
+                                !user.HasOwnProfilePicture ?
+                                NoProfileImagePath :
+                                userProfileImage)));
+            }
+
+            return base64StringsByUserProfileImage[userProfileImage];
         }
 
         private string ConvertUsernameToApiDirectoryByUser(User user)
@@ -60,6 +87,11 @@
         private string ConvertUsernameToApiDirectory(string username)
         {
             return $"/Users/{username.ToLower().Replace(" ", "-")}";
+        }
+
+        private string ConvertToBase64String(byte[] bytes)
+        {
+            return $"data:image/png;base64,{Convert.ToBase64String(bytes)}";
         }
     }
 }
