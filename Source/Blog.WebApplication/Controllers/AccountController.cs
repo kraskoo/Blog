@@ -1,8 +1,4 @@
-﻿using System;
-using System.Net;
-using System.Web;
-
-namespace Blog.WebApplication.Controllers
+﻿namespace Blog.WebApplication.Controllers
 {
     using System.Linq;
     using System.Threading.Tasks;
@@ -100,7 +96,6 @@ namespace Blog.WebApplication.Controllers
         [HttpGet]
         public ActionResult EditProfile()
         {
-            var env = this.OwinContext.Environment["host.AppMode"];
             return this.View(
                 AccountDataService
                     .GetEditProfile(

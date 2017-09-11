@@ -1,6 +1,6 @@
-﻿@using (Html.BeginForm("ExternalLogin", "Account", new { Model.ReturnUrl }))
+﻿@using (this.Html.BeginForm("ExternalLogin", "Account", new { Model.ReturnUrl }))
 {
-@Html.AntiForgeryToken()
+@this.Html.AntiForgeryToken()
 <div id="socialLoginList">
     <p>
         @foreach (var providers in loginProviders)

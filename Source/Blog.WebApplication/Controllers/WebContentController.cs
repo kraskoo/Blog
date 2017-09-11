@@ -4,12 +4,19 @@
     using System.Net;
     using System.Net.Http;
     using System.Text;
+    using System.Web;
     using System.Web.Http;
     using Data;
     using Models.BindingModels;
 
     public class WebContentController : ApiController
     {
+        public bool GetApiMode()
+        {
+            var enviroment = HttpContext.Current.GetOwinContext().Environment;
+            return enviroment.ContainsKey("host.AppMode") && enviroment["host.AppMode"].Equals("development");
+        }
+
         public HttpResponseMessage GetReply(int replyId)
         {
             // http://localhost:49578/api/webcontent/reply?replyid=5

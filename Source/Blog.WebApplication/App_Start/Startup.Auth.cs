@@ -1,10 +1,6 @@
-﻿using Blog.Services.DataServices;
-using Microsoft.Ajax.Utilities;
-
-namespace Blog.WebApplication
+﻿namespace Blog.WebApplication
 {
     using System;
-    using System.Linq;
     using Microsoft.AspNet.Identity;
     using Microsoft.AspNet.Identity.Owin;
     using Microsoft.Owin;
@@ -14,6 +10,7 @@ namespace Blog.WebApplication
     using Models;
     using Data;
     using Services;
+    using Services.DataServices;
 
     public partial class Startup
     {

@@ -2,8 +2,8 @@
 {
     using System;
     using System.Data.Entity;
-    using System.Collections.Generic;
     using System.Linq;
+    using System.Threading.Tasks;
     using System.Security.Principal;
     using Microsoft.AspNet.Identity;
     using AccountServices;
@@ -13,40 +13,47 @@
 
     public class TopicDataService : BaseDataService
     {
-        public TopicViewModel2 GetById(int id)
+        public async Task<TopicViewModel2> GetById(int id)
         {
             var profileService = new AccountProfileService();
             Topic currentTopic;
             Reply[] replies;
             using (var context = this.GetDbContext)
             {
-                replies = context.Replies.Include(r => r.User).ToArray();
-                currentTopic = context
+                currentTopic = await context
                     .Topics
                     .Include(t => t.User)
                     .Include(t => t.Replies)
-                    .FirstOrDefault(t => t.Id == id);
-            }
-
-            return new TopicViewModel2
-            {
-                TopicId = currentTopic.Id,
-                TopicTitle = currentTopic.Title,
-                TopicDate = currentTopic.TopicDate,
-                TopicCategory = currentTopic.Category,
-                TopicText = currentTopic.Text,
-                AuthorUserName = currentTopic.User.UserName,
-                AuthorProfilePicture = profileService.GetUserProfileImage(currentTopic.User),
-                ReplyViewModels = currentTopic.Replies.Select(r => new ReplyViewModel
+                    .FirstOrDefaultAsync(t => t.Id == id);
+                replies = await context
+                    .Replies
+                    .Include(r => r.User)
+                    .Include(r => r.Topic)
+                    .Where(r => r.TopicId == currentTopic.Id)
+                    .ToArrayAsync();
+                return new TopicViewModel2
                 {
-                    Id = r.Id,
-                    ReplyText = r.ReplayText,
-                    ReplierId = replies.FirstOrDefault(rep => rep.Id == r.Id).UserId,
-                    ReplierProfilePicture = profileService.GetUserProfileImage(replies.FirstOrDefault(rep => rep.Id == r.Id)?.User),
-                    ReplierUserName = replies.FirstOrDefault(rep => rep.Id == r.Id).User.UserName,
-                    ReplyDate = r.ReplayDate
-                }).ToArray()
-            };
+                    TopicId = currentTopic.Id,
+                    TopicTitle = currentTopic.Title,
+                    TopicDate = currentTopic.TopicDate,
+                    TopicCategory = currentTopic.Category,
+                    TopicText = currentTopic.Text,
+                    AuthorUserName = currentTopic.User.UserName,
+                    AuthorProfilePicture = profileService.GetUserProfileImage(currentTopic.User),
+                    ReplyViewModels = currentTopic.Replies.AsParallel().Select(r =>
+                        new ReplyViewModel
+                        {
+                            Id = r.Id,
+                            ReplyText = r.ReplayText,
+                            ReplierId = replies.FirstOrDefault(rep => rep.Id == r.Id).UserId,
+                            ReplierProfilePicture =
+                                profileService.GetUserProfileImage(replies.FirstOrDefault(rep => rep.Id == r.Id)?.User),
+                            ReplierUserName = replies.FirstOrDefault(rep => rep.Id == r.Id).User.UserName,
+                            ReplyDate = r.ReplayDate
+                        }
+                    ).OrderBy(r => r.Id)
+                };
+            }
         }
 
         public TopicViewModel[] GetIndexTopics(string category)

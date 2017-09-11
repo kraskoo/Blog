@@ -1,25 +1,23 @@
-﻿using System;
-using System.Text;
-
-namespace Blog.Services.AccountServices
+﻿namespace Blog.Services.AccountServices
 {
+    using System;
     using System.IO;
     using System.Threading.Tasks;
-    using System.Collections.Generic;
+    using System.Collections.Concurrent;
     using Models;
     using Models.BindingModels;
 
     public class AccountProfileService
     {
         private const string NoProfileImagePath = "/Users/no-profile-image.png";
-        private readonly Dictionary<string, string> base64StringsByUserProfileImage;
+        private readonly ConcurrentDictionary<string, string> base64StringsByUserProfileImage;
 
         public AccountProfileService()
         {
-            this.base64StringsByUserProfileImage = new Dictionary<string, string>();
+            this.base64StringsByUserProfileImage = new ConcurrentDictionary<string, string>();
         }
 
-        public Task UploadUserProfilePicture(
+        public async Task UploadUserProfilePicture(
             string username,
             bool hasOwnProfilePicture,
             EditProfileBindingModel epbm)
@@ -40,15 +38,20 @@ namespace Blog.Services.AccountServices
             }
 
             var filePath = $"{userPath}/profile.jpg";
-            return InternalService.DropboxService.UploadFile(filePath, imageBytes, hasOwnProfilePicture);
+            await InternalService.DropboxService.UploadFile(filePath, imageBytes, hasOwnProfilePicture);
         }
 
-        public string GetUserProfileImage(bool hasOwnProfileImage, string username)
+        public string GetUserProfileImage(bool hasOwnProfileImage, string username, bool needsToReload = false)
         {
             var userProfileImage = $"{this.ConvertUsernameToApiDirectory(username)}/profile.jpg";
+            if (needsToReload)
+            {
+                base64StringsByUserProfileImage.TryRemove(userProfileImage, out string _);
+            }
+
             if (!base64StringsByUserProfileImage.ContainsKey(hasOwnProfileImage ? userProfileImage : NoProfileImagePath))
             {
-                base64StringsByUserProfileImage.Add(
+                base64StringsByUserProfileImage.TryAdd(
                     userProfileImage,
                     this.ConvertToBase64String(
                         InternalService.DropboxService
@@ -61,12 +64,17 @@ namespace Blog.Services.AccountServices
             return base64StringsByUserProfileImage[userProfileImage];
         }
 
-        public string GetUserProfileImage(User user)
+        public string GetUserProfileImage(User user, bool needsToReload = false)
         {
             var userProfileImage = $"{this.ConvertUsernameToApiDirectoryByUser(user)}/profile.jpg";
+            if (needsToReload)
+            {
+                base64StringsByUserProfileImage.TryRemove(userProfileImage, out string _);
+            }
+
             if (!base64StringsByUserProfileImage.ContainsKey(user.HasOwnProfilePicture ? userProfileImage : NoProfileImagePath))
             {
-                base64StringsByUserProfileImage.Add(
+                base64StringsByUserProfileImage.TryAdd(
                     userProfileImage,
                     this.ConvertToBase64String(
                         InternalService.DropboxService

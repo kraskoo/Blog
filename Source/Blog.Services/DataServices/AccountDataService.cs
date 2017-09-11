@@ -17,67 +17,64 @@
 
     public class AccountDataService : BaseDataService
     {
-        public Task EditProfile(
+        public async Task EditProfile(
             EditProfileBindingModel epbm,
             IPrincipal user,
             IAuthenticationManager authenticationManager,
             UserManager userManager)
         {
             var isImageUpdate = epbm.PostedFileBase != null;
-            return Task.Run(() =>
+            using (var context = this.GetDbContext)
             {
-                using (var context = this.GetDbContext)
+                var currentUser = context.Users.Find(user.Identity.GetUserId());
+                var isUserInfoIsUpdated = epbm.Email != currentUser.Email ||
+                                          epbm.FirstName != currentUser.FirstName ||
+                                          epbm.LastName != currentUser.LastName;
+                if (isImageUpdate)
                 {
-                    var currentUser = context.Users.Find(user.Identity.GetUserId());
-                    var isUserInfoIsUpdated = epbm.Email != currentUser.Email ||
-                                              epbm.FirstName != currentUser.FirstName ||
-                                              epbm.LastName != currentUser.LastName;
-                    if (isImageUpdate)
+                    var accountUserProfile = new AccountProfileService();
+                    await accountUserProfile.UploadUserProfilePicture(
+                            currentUser.UserName,
+                            currentUser.HasOwnProfilePicture,
+                            epbm);
+                    if (!currentUser.HasOwnProfilePicture)
                     {
-                        new AccountProfileService()
-                            .UploadUserProfilePicture(
-                                currentUser.UserName,
-                                currentUser.HasOwnProfilePicture,
-                                epbm);
-                        if (!currentUser.HasOwnProfilePicture)
-                        {
-                            currentUser.HasOwnProfilePicture = true;
-                            context.Users.AddOrUpdate(currentUser);
-                            context.SaveChangesAsync();
-                        }
-                    }
-
-                    if (isUserInfoIsUpdated)
-                    {
-                        currentUser.FirstName = epbm.FirstName;
-                        currentUser.LastName = epbm.LastName;
-                        currentUser.Email = epbm.Email;
-                        var newUsername = $"{epbm.FirstName} {epbm.LastName}";
-                        if (currentUser.HasOwnProfilePicture)
-                        {
-                            InternalService.DropboxService
-                                .RenameFolder("/Users/",
-                                    currentUser.UserName.Replace(" ", "-").ToLower(),
-                                    newUsername.Replace(" ", "-").ToLower());
-                        }
-
-                        currentUser.UserName = newUsername;
+                        currentUser.HasOwnProfilePicture = true;
                         context.Users.AddOrUpdate(currentUser);
-                        context.SaveChangesAsync();
-                        authenticationManager.SignOut(
-                            DefaultAuthenticationTypes.ExternalCookie);
-                        var identity = userManager.CreateIdentity(
-                            currentUser,
-                            DefaultAuthenticationTypes.ApplicationCookie);
-                        authenticationManager.SignIn(
-                            new AuthenticationProperties
-                            {
-                                IsPersistent = true
-                            },
-                            identity);
+                        await context.SaveChangesAsync();
                     }
                 }
-            });
+
+                if (isUserInfoIsUpdated)
+                {
+                    currentUser.FirstName = epbm.FirstName;
+                    currentUser.LastName = epbm.LastName;
+                    currentUser.Email = epbm.Email;
+                    var newUsername = $"{epbm.FirstName} {epbm.LastName}";
+                    if (currentUser.HasOwnProfilePicture)
+                    {
+                        InternalService.DropboxService
+                            .RenameFolder("/Users/",
+                                currentUser.UserName.Replace(" ", "-").ToLower(),
+                                newUsername.Replace(" ", "-").ToLower());
+                    }
+
+                    currentUser.UserName = newUsername;
+                    context.Users.AddOrUpdate(currentUser);
+                    await context.SaveChangesAsync();
+                    authenticationManager.SignOut(
+                        DefaultAuthenticationTypes.ExternalCookie);
+                    var identity = userManager.CreateIdentity(
+                        currentUser,
+                        DefaultAuthenticationTypes.ApplicationCookie);
+                    authenticationManager.SignIn(
+                        new AuthenticationProperties
+                        {
+                            IsPersistent = true
+                        },
+                        identity);
+                }
+            }
         }
 
         public IEnumerable<UserReplyViewModel> GetUserReplies(string id)
@@ -164,7 +161,7 @@
 
         public EditProfileBindingModel GetEditProfile(
             string userId,
-            Func<bool, string, string> profileImageFunc)
+            Func<bool, string, bool, string> profileImageFunc)
         {
             var currentUser = this.FindUserById(userId);
             return new EditProfileBindingModel
@@ -174,7 +171,8 @@
                 LastName = currentUser.LastName,
                 ProfilePictureUrl = profileImageFunc(
                     currentUser.HasOwnProfilePicture,
-                    currentUser.UserName)
+                    currentUser.UserName,
+                    true)
             };
         }
     }
