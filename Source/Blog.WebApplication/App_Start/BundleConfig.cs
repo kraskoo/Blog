@@ -29,8 +29,11 @@
             bundles.Add(new ScriptBundle("~/bundles/loginForm").Include(
                 "~/Scripts/loginFormHandler.js"));
 
-            bundles.Add(new ScriptBundle("~/bundles/userCommentHandler").Include(
+            bundles.Add(new ScriptBundle("~/bundles/editUserCommentHandler").Include(
                 "~/Scripts/editUserCommentHandler.js"));
+
+            bundles.Add(new ScriptBundle("~/bundles/commentAcceptHandler").Include(
+                "~/Scripts/commentAcceptHandler.js"));
         }
     }
 }

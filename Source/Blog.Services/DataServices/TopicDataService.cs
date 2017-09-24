@@ -13,24 +13,23 @@
 
     public class TopicDataService : BaseDataService
     {
-        public async Task<TopicViewModel2> GetById(int id)
+        public TopicViewModel2 GetById(int id)
         {
             var profileService = new AccountProfileService();
-            Topic currentTopic;
-            Reply[] replies;
+            //Reply[] replies;
             using (var context = this.GetDbContext)
             {
-                currentTopic = await context
+                var currentTopic = context
                     .Topics
                     .Include(t => t.User)
                     .Include(t => t.Replies)
-                    .FirstOrDefaultAsync(t => t.Id == id);
-                replies = await context
-                    .Replies
-                    .Include(r => r.User)
-                    .Include(r => r.Topic)
-                    .Where(r => r.TopicId == currentTopic.Id)
-                    .ToArrayAsync();
+                    .FirstOrDefault(t => t.Id == id);
+                //replies = await context
+                //    .Replies
+                //    .Include(r => r.User)
+                //    .Include(r => r.Topic)
+                //    .Where(r => r.TopicId == currentTopic.Id)
+                //    .ToArrayAsync();
                 return new TopicViewModel2
                 {
                     TopicId = currentTopic.Id,
@@ -39,19 +38,19 @@
                     TopicCategory = currentTopic.Category,
                     TopicText = currentTopic.Text,
                     AuthorUserName = currentTopic.User.UserName,
-                    AuthorProfilePicture = profileService.GetUserProfileImage(currentTopic.User),
-                    ReplyViewModels = currentTopic.Replies.AsParallel().Select(r =>
-                        new ReplyViewModel
-                        {
-                            Id = r.Id,
-                            ReplyText = r.ReplayText,
-                            ReplierId = replies.FirstOrDefault(rep => rep.Id == r.Id).UserId,
-                            ReplierProfilePicture =
-                                profileService.GetUserProfileImage(replies.FirstOrDefault(rep => rep.Id == r.Id)?.User),
-                            ReplierUserName = replies.FirstOrDefault(rep => rep.Id == r.Id).User.UserName,
-                            ReplyDate = r.ReplayDate
-                        }
-                    ).OrderBy(r => r.Id)
+                    AuthorProfilePicture = profileService.GetUserProfileImage(currentTopic.User)
+                    //ReplyViewModels = currentTopic.Replies.AsParallel().Select(r =>
+                    //    new ReplyViewModel
+                    //    {
+                    //        Id = r.Id,
+                    //        ReplyText = r.ReplayText,
+                    //        ReplierId = replies.FirstOrDefault(rep => rep.Id == r.Id).UserId,
+                    //        ReplierProfilePicture =
+                    //            profileService.GetUserProfileImage(replies.FirstOrDefault(rep => rep.Id == r.Id)?.User),
+                    //        ReplierUserName = replies.FirstOrDefault(rep => rep.Id == r.Id).User.UserName,
+                    //        ReplyDate = r.ReplayDate
+                    //    }
+                    //).OrderBy(r => r.Id)
                 };
             }
         }

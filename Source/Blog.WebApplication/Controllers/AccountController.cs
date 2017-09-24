@@ -43,6 +43,14 @@
             return this.View(AccountDataService.GetUserReplies(id));
         }
 
+        [AllowAnonymous]
+        [OutputCache(Duration = 120)]
+        public async Task<ContentResult> UserProfileImage(string id)
+        {
+            var base64 = profileService.GetUserProfileImage(this.UserManager.Users.FirstOrDefault(u => u.Id == id));
+            return await Task.FromResult(this.Content(base64));
+        }
+
         // GET: /Account/Login
         [AllowAnonymous]
         public ActionResult Login(string returnUrl)

@@ -97,7 +97,7 @@
             return $"/Users/{username.ToLower().Replace(" ", "-")}";
         }
 
-        private string ConvertToBase64String(byte[] bytes)
+        public string ConvertToBase64String(byte[] bytes)
         {
             return $"data:image/png;base64,{Convert.ToBase64String(bytes)}";
         }

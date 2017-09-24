@@ -15,9 +15,9 @@
         }
 
         [Route("Topic/{id:int}")]
-        public async Task<ActionResult> GetById(int id)
+        public ActionResult GetById(int id)
         {
-            return this.View(await this.dataService.GetById(id));
+            return this.View(this.dataService.GetById(id));
         }
 
         [Route("Topic")]

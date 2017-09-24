@@ -1,13 +1,36 @@
 ﻿namespace Blog.Services.DataServices
 {
     using System;
+    using System.Data.Entity;
     using System.Data.Entity.Migrations;
+    using System.Linq;
     using System.Threading.Tasks;
     using Models;
     using Models.BindingModels;
+    using Models.ViewModels;
 
     public class ReplyDataService : BaseDataService
     {
+        public Task<ReplyViewModel[]> GetRepliesByTopicId(int topicId)
+        {
+            return this.GetDbContext
+                .Replies
+                .Include(r => r.User)
+                .Include(t => t.Topic)
+                .Where(r => r.TopicId == topicId)
+                .SelectMany(r => new[]
+                {
+                    new ReplyViewModel
+                    {
+                        Id = r.Id,
+                        ReplierId = r.UserId,
+                        ReplyDate = r.ReplayDate,
+                        ReplyText = r.ReplayText,
+                        ReplierUserName = r.User.UserName
+                    }
+                }).ToArrayAsync();
+        }
+
         public Task CreateReply(ReplyBindingModel reply)
         {
             var newReply = new Reply

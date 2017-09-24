@@ -1,7 +1,6 @@
 ﻿namespace Blog.Models.ViewModels
 {
     using System;
-    using System.Collections.Generic;
     using Enums;
 
     public class TopicViewModel2
@@ -20,6 +19,6 @@
 
         public string TopicText { get; set; }
 
-        public IEnumerable<ReplyViewModel> ReplyViewModels { get; set; }
+        //public IEnumerable<ReplyViewModel> ReplyViewModels { get; set; }
     }
 }
